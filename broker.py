@@ -17,7 +17,17 @@ class Broker:
             await writer.wait_closed()
             return
         type=dati.decode().strip()
-        while True:
+        if type=="sub":
+            topic=await reader.readline()
+            if not dati:
+                print(f"Disconnesso: {ip}:{pn}")
+                writer.close()
+                await writer.wait_closed()
+                return
+            while 1:
+                pass
+
+        while 1:
             dati = await reader.readline()
             if not dati:
                 break
