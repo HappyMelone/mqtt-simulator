@@ -16,7 +16,7 @@ class Broker:
             writer.close()
             await writer.wait_closed()
             return
-        type=int(dati.decode().strip())                                          # 0=Sub, 1=Pub
+        type=dati.decode().strip()
         while True:
             dati = await reader.readline()
             if not dati:
