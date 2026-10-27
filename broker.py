@@ -7,6 +7,13 @@ class Broker:
         async with broker:
             await broker.serve_forever()
 
+    async def sub(self,topic):
+        pass
+
+    async def pub(self,topic,msg):
+        pass
+        
+
     async def gestisci_client(self,reader,writer):
         ip,pn = writer.get_extra_info("peername")
         print(f"Connesso: {ip}:{pn}")
@@ -25,8 +32,14 @@ class Broker:
                 await writer.wait_closed()
                 return
             while 1:
-                pass
-
+                lettura=asyncio.create_task(reader.readline())
+                altro=asyncio.create_task(self.sub(topic))   # resto del programma
+                done,pending=await asyncio.wait({lettura,altro},return_when=asyncio.FIRST_COMPLETED)
+                for t in pending:
+                    t.cancel()
+                if lettura in done and not lettura.result():
+                    break
+        """
         while 1:
             dati = await reader.readline()
             if not dati:
@@ -34,11 +47,11 @@ class Broker:
             testo = dati.decode().strip()
             print(f"{ip}:{pn} ha scritto: {testo}")
     
-            await asyncio.sleep(1)
-            #time.sleep(5)
+            await asyncio.sleep(0)
             risposta = testo.upper() + "\n"
             writer.write(risposta.encode())
             await writer.drain()
+        """
         print(f"Disconnesso: {ip}:{pn}")
         writer.close()
         await writer.wait_closed()
