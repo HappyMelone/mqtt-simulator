@@ -23,35 +23,11 @@ class Broker:
             writer.close()
             await writer.wait_closed()
             return
-        type=dati.decode().strip()
-        if type=="sub":
-            topic=await reader.readline()
-            if not dati:
-                print(f"Disconnesso: {ip}:{pn}")
-                writer.close()
-                await writer.wait_closed()
-                return
-            while 1:
-                lettura=asyncio.create_task(reader.readline())
-                altro=asyncio.create_task(self.sub(topic))   # resto del programma
-                done,pending=await asyncio.wait({lettura,altro},return_when=asyncio.FIRST_COMPLETED)
-                for t in pending:
-                    t.cancel()
-                if lettura in done and not lettura.result():
-                    break
-        """
-        while 1:
-            dati = await reader.readline()
-            if not dati:
-                break
-            testo = dati.decode().strip()
-            print(f"{ip}:{pn} ha scritto: {testo}")
-    
-            await asyncio.sleep(0)
-            risposta = testo.upper() + "\n"
-            writer.write(risposta.encode())
-            await writer.drain()
-        """
+        datas=dati.decode().split(":")
+        if datas[0]=="sub":
+            self.sub(datas[1])
+        elif datas[0]=="pub":
+            self.pub(datas[1],datas[2])
         print(f"Disconnesso: {ip}:{pn}")
         writer.close()
         await writer.wait_closed()
