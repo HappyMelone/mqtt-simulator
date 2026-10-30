@@ -34,6 +34,7 @@ class Broker:
             self.__class__.clients[datas[1]].append(writer)
         elif datas[0]=="pub":
             await self.pub(datas[1],datas[2])
+            print(f"Disconnesso: {ip}:{pn}")
             writer.close()
             await writer.wait_closed()
     
