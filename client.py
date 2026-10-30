@@ -1,5 +1,9 @@
 import sys,asyncio
 
+"""
+python client.py 127.0.0.1 <topic> <msg>?
+"""
+
 async def main():
     if len(sys.argv)==2:                    #è un subscriber
         address=sys.argv[1]
