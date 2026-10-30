@@ -4,7 +4,8 @@ async def main():
     if len(sys.argv)==2:                    #è un subscriber
         address=sys.argv[1]
         topic=sys.argv[2]
-        reader,writer=await asyncio.open_connection("127.0.0.1",8888)
+        reader,writer=await asyncio.open_connection(address,8888)
+        writer.write(f"sub:{topic}".encode())
         while 1:
             data=reader.readline()
             print(data)
@@ -12,8 +13,8 @@ async def main():
         address=sys.argv[1]
         topic=sys.argv[2]        
         msg=sys.argv[3]
-        reader,writer=await asyncio.open_connection("127.0.0.1",8888)
-        writer.write(msg.encode())
+        reader,writer=await asyncio.open_connection(address,8888)
+        writer.write(f"pub:{topic}:{msg}".encode())
     else:
         sys.exit(1)
 
