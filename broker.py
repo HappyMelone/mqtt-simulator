@@ -1,6 +1,8 @@
 import asyncio
 
 class Broker:
+
+    clients={}
     
     async def run(self):
         broker = await asyncio.start_server(self.gestisci_client,"127.0.0.1",8888)
@@ -8,8 +10,12 @@ class Broker:
             await broker.serve_forever()
 
     async def pub(self,topic,msg):
-        for writer in clients[topic][:]:
-            writer.write(msg.decode())
+        try:
+            for writer in self.__class__.clients[topic][:]:
+                writer.write(f"{msg}\n".encode())
+                await writer.drain()
+        except KeyError:
+            pass
 
 
     async def gestisci_client(self,reader,writer):
@@ -21,16 +27,17 @@ class Broker:
             writer.close()
             await writer.wait_closed()
             return
-        datas=dati.decode().split(":")
-        clients[datas[1]]=[]
+        datas=dati.decode().rstrip().split(":")
+        if datas[1] not in self.__class__.clients:
+            self.__class__.clients[datas[1]]=[]
         if datas[0]=="sub":
-            clients[datas[1]].append(writer)
-            self.sub(datas[1])
+            self.__class__.clients[datas[1]].append(writer)
         elif datas[0]=="pub":
-            self.pub(datas[1],datas[2])
+            await self.pub(datas[1],datas[2])
+            writer.close()
+            await writer.wait_closed()
     
 
 if __name__ == "__main__":
-    clients={}
     broker = Broker()
     asyncio.run(broker.run())
